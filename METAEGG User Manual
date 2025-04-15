@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>METAEGG User Manual</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: linear-gradient(145deg, #291f49, #1f1833);
+      color: #f0f0f0;
+      scroll-behavior: smooth;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(to right, #6d4bd9, #8a60e7);
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    header img {
+      height: 38px;
+    }
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      order: 1; /* 默认在右侧 */
+    }
+    .lang-select {
+      background: #3e2d68;
+      color: white;
+      border: 1px solid white;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 14px;
+      margin-right: 10px;
+      order: 2; /* 默认在左侧 */
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      height: 100%;
+      width: 250px;
+      background: #3e2d68;
+      transition: all 0.3s ease;
+      padding-top: 60px;
+      z-index: 998;
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar a {
+      display: block;
+      padding: 16px 24px;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+    }
+    .sidebar a:hover {
+      background: #5f49a1;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 40px;
+      color: #ffffff;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .card:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .card h3 {
+      font-size: 18px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .card-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+    .card.active .card-content {
+      max-height: 500px;
+      margin-top: 10px;
+    }
+    .card-content p {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+    .card-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    #top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(to right, #8a60e7, #a07af1);
+      color: white;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 40px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    #top-btn:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(to right, #9e74f1, #b190f5);
+    }
+    @media (max-width: 768px) {
+      header {
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+      }
+    }
+
+    /* RTL 特定样式 */
+    html[dir="rtl"] {
+      direction: rtl;
+    }
+    html[dir="rtl"] header {
+      flex-direction: row-reverse;
+    }
+    html[dir="rtl"] .menu-toggle {
+      order: 2;
+      margin-left: 0;
+      margin-right: auto;
+    }
+    html[dir="rtl"] .lang-select {
+      order: 1;
+      margin-right: 0;
+      margin-left: 10px;
+    }
+    html[dir="rtl"] .sidebar {
+      left: auto;
+      right: -250px;
+    }
+    html[dir="rtl"] .sidebar.active {
+      left: auto;
+      right: 0;
+    }
+    html[dir="rtl"] .card h3,
+    html[dir="rtl"] .card-content p {
+      text-align: right;
+    }
+    html[dir="rtl"] #top-btn {
+      right: auto;
+      left: 30px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://via.placeholder.com/150x40?text=METAEGG+LOGO" alt="METAEGG">
+    <select class="lang-select" id="lang-select" onchange="changeLanguage()">
+      <option value="en">English</option>
+      <option value="ar">العربية</option>
+      <option value="tr">Türkçe</option>
+      <option value="ur">اردو</option>
+      <option value="zh">日本語</option>
+    </select>
+    <button class="menu-toggle" onclick="toggleSidebar(event)">☰</button>
+  </header>
+
+  <div class="sidebar" id="sidebar">
+    <!-- Filled dynamically via JS -->
+  </div>
+
+  <div class="container">
+    <h1 data-i18n="title">METAEGG User Manual</h1>
+    <div id="cards"></div>
+  </div>
+
+  <button id="top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" data-i18n="top">Back to Top</button>
+
+  <script>
+    const langData = {
+      en: {
+        title: "METAEGG User Manual",
+        top: "Back to Top",
+        sections: [
+          ["🐣Registration & Login", "Users can visit the METAEGG.GG official website or search for METAEGG on Google Play to download the METAEGG app. \nAfter entering the platform, click the 'Register' button below, enter your email and password, and verify your email to complete the registration<br><img src='https://via.placeholder.com/300x200?text=register' alt='register'>"],
+          ["➕Account Recharge", "After logging in, go to 'My' > 'Recharge'\nChoose the payment method (cryptocurrency and fiat currency are available)\nEnter the recharge amount, and complete the recharge process<br><img src='https://via.placeholder.com/300x200?text=recharge' alt='recharge'>"],
+          ["➖Account Withdrawal", "After logging in, go to 'My' > 'Withdraw'\nChoose the payment method (cryptocurrency and fiat currency are available)\nEnter the withdrawal amount, and complete the withdrawal process. The platform will process it after review<br><img src='https://via.placeholder.com/300x200?text=withdraw' alt='withdraw'>"],
+          ["🐤Buy Chickens", "Click on the Metaverse Farm Map and choose 'Garden' to enter the breeding ground\nSelect the number of chickens to buy\nAfter confirming, the system will bind a real egg-laying chicken and generate virtual chickens to produce EGG points<br><img src='https://via.placeholder.com/300x200?text=buying' alt='buying'>"],
+          ["🥚Using EGG", "EGG points can be used for: opening chicken coops to earn more EGG points, battle royale mini-games, lucky mall, future features, etc. The platform's ecosystem is complete, and EGG is the core point<br><img src='https://via.placeholder.com/300x200?text=Points' alt='Points'>"],
+          ["♻️EGG Trading", "EGG points can be listed for sale or purchase on the trading market. Users can freely circulate points within the platform, and transfers are supported<br><img src='https://via.placeholder.com/300x200?text=trade' alt='trade'>"],
+          ["💎Egg Value", "Real-life Chicken Egg Laying Capacity: A hen can lay about 300 eggs in 72 weeks\nReal-life Market Price: In the U.S. market, the current egg price is $0.5~$1.2 per egg\nRelationship Between Platform Users and Real-life Chickens:\nVirtual chickens only have usage rights, and the real-life egg income belongs to the platform\nVirtual chickens produce EGG points as user incentives\nWhy does the platform only distribute 10 EGGs?\nConsidering real-life output and platform ecosystem balance, each virtual chicken can release a maximum of 10 EGGs, with the remaining value reserved for platform development and ecosystem support<br><img src='https://via.placeholder.com/300x200?text=EGGvalue' alt='value'>"],
+          ["💌Invitation Mechanism", "Commission Mechanism: All functions of the platform have a commission module\nCommission Rate Setting: (Refer to the image below), you can also check the detailed information through the invitation instructions in the platform\nCommission Settlement Method: Statistics are generated after each transaction record, with real-time crediting\nCommissions are issued in the form of EGG points, which can be used for farm upgrades or sold in the trading market<br><img src='https://via.placeholder.com/300x200?text=commission' alt='commission'>"],
+          ["🐔FAQs", "❓Q1: How many EGGs can a chicken produce?\n✅A: Each chick produces 10 EGGs, with a cycle of about 60 days\n❓Q2: Can chickens be transferred?\n🚫A: Virtual chickens cannot be transferred\n❓Q3: Can points be transferred?\n✅A: Yes, they can be freely transferred\n❓Q4: What are the uses of EGG points?\n💡A: Mini-games, lucky draws in the mall, redeeming physical goods, etc\n❓Q5: Are the points' prices stable?\n📊A: The total number of points is limited, platform demand is stable, and the price remains relatively stable\n❓Q6: How long does it take for a withdrawal to be processed?\n⏳A: It will be processed and credited within 24 hours after review\n❓Q7: Is the platform legal?\n✅A: The platform is fully compliant and operating legally\n❓Q8: How can I find METAEGG-related information on the internet?\n📣A: METAEGG has received widespread acclaim in the global market, and you can find METAEGG-related legal information and reports in over 30 professional media outlets worldwide"]
+        ]
+      },
+      ar: {
+        title: "دليل مستخدم METAEGG",
+        top: "العودة للأعلى",
+        sections: [
+          ["🐣التسجيل وتسجيل الدخول", "يمكن للمستخدمين زيارة موقع METAEGG.GG الرسمي أو البحث عن METAEGG على Google Play لتنزيل تطبيق METAEGG. بعد الدخول إلى المنصة، انقر فوق زر 'تسجيل' أدناه، وأدخل بريدك الإلكتروني وكلمة المرور، وقم بتأكيد بريدك الإلكتروني لإكمال التسجيل<br><img src='https://via.placeholder.com/300x200?text=register' alt='تسجيل'>"],
+          ["➕شحن الحساب", "بعد تسجيل الدخول، انتقل إلى 'حسابي' > 'شحن'\nاختر طريقة الدفع (العملات المشفرة والعملات التقليدية متاحة)\nأدخل مبلغ الشحن، وأكمل عملية الشحن<br><img src='https://via.placeholder.com/300x200?text=recharge' alt='شحن'>"],
+          ["➖سحب الأموال", "بعد تسجيل الدخول، انتقل إلى 'حسابي' > 'سحب'\nاختر طريقة السحب (العملات المشفرة والعملات التقليدية متاحة)\nأدخل مبلغ السحب، وأكمل عملية السحب. ستقوم المنصة بمعالجته بعد المراجعة<br><img src='https://via.placeholder.com/300x200?text=withdraw' alt='سحب'>"],
+          ["🐤شراء الدجاج", "انقر على خريطة المزرعة الافتراضية واختر 'حديقة' للدخول إلى منطقة التربية\nحدد عدد الدجاج الذي تريد شراءه\nبعد التأكيد، سيقوم النظام بربط دجاجة حقيقية لوضع البيض وإنشاء دجاج افتراضي لإنتاج نقاط EGG<br><img src='https://via.placeholder.com/300x200?text=buying' alt='شراء'>"],
+          ["🥚استخدام EGG", "يمكن استخدام نقاط EGG لفتح حظائر الدجاج لكسب المزيد من نقاط EGG، وألعاب البقاء، والمول المحظوظ، والميزات المستقبلية، إلخ. النظام البيئي للمنصة كامل، وEGG هي النقطة الأساسية<br><img src='https://via.placeholder.com/300x200?text=Points' alt='نقاط'>"],
+          ["♻️تداول EGG", "يمكن إدراج نقاط EGG للبيع أو الشراء في سوق التداول. يمكن للمستخدمين تداول النقاط بحرية داخل المنصة، ويتم دعم التحويلات<br><img src='https://via.placeholder.com/300x200?text=trade' alt='تداول'>"],
+          ["💎قيمة البيض", "قدرة الدجاج على وضع البيض في الحياة الواقعية: يمكن للدجاجة وضع حوالي 300 بيضة في 72 أسبوعًا\nسعر السوق في الحياة الواقعية: في السوق الأمريكية، يتراوح سعر البيضة الحالي بين 0.5 دولار و1.2 دولار لكل بيضة<br><img src='https://via.placeholder.com/300x200?text=EGGvalue' alt='قيمة'>"],
+          ["💌نظام الدعوة", "نظام العمولة: جميع وظائف المنصة تحتوي على وحدة عمولة\nإعداد نسبة العمولة: (انظر الصورة أدناه)، يمكنك أيضًا التحقق من المعلومات التفصيلية من خلال تعليمات الدعوة في المنصة<br><img src='https://via.placeholder.com/300x200?text=commission' alt='عمولة'>"],
+          ["🐔الأسئلة الشائعة", "❓س1: كم عدد نقاط EGG التي يمكن أن تنتجها الدجاجة؟\n✅ج: كل دجاجة تنتج 10 نقاط EGG، مع دورة حوالي 60 يومًا\n❓س2: هل يمكن نقل الدجاج؟\n🚫ج: لا يمكن نقل الدجاج الافتراضي\n❓س3: هل يمكن نقل النقاط؟\n✅ج: نعم، يمكن نقلها بحرية\n❓س4: ما هي استخدامات نقاط EGG؟\n💡ج: الألعاب الصغيرة، السحب في المول، استبدال السلع المادية، إلخ"]
+        ]
+      },
+      tr: {
+        title: "METAEGG Kullanım Kılavuzu",
+        top: "Yukarı Dön",
+        sections: [
+            ["🐣Kayıt ve Giriş", "Kullanıcılar METAEGG.GG resmi web sitesini ziyaret edebilir veya Google Play'de METAEGG araması yaparak METAEGG uygulamasını indirebilirler. Platforma girdikten sonra, aşağıdaki 'Kayıt Ol' butonuna tıklayın, e-posta adresinizi ve şifrenizi girin ve kaydı tamamlamak için e-postanızı doğrulayın.<br><img src='https://via.placeholder.com/300x200?text=register' alt='register'>"],
+            ["➕Hesap Yükleme", "Giriş yaptıktan sonra 'Ben' > 'Yükle' bölümüne gidin, ödeme yöntemini seçin (kripto para ve itibari para mevcuttur), yükleme tutarını girin ve yükleme işlemini tamamlayın.<br><img src='https://via.placeholder.com/300x200?text=recharge' alt='recharge'>"],
+            ["➖Hesap Para Çekme", "Giriş yaptıktan sonra 'Ben' > 'Para Çek' bölümüne gidin, ödeme yöntemini seçin (kripto para ve itibari para mevcuttur), çekmek istediğiniz tutarı girin ve para çekme işlemini tamamlayın. Platform, incelemeden sonra işlemi gerçekleştirecektir.<br><img src='https://via.placeholder.com/300x200?text=withdraw' alt='withdraw'>"],
+            ["🐤Civciv Satın Al", "Metaverse Çiftlik Haritasına tıklayın ve yetiştirme alanına girmek için 'Bahçe'yi seçin. Satın almak istediğiniz civciv sayısını seçin. Onayladıktan sonra sistem gerçek yumurtlayan bir tavukla eşleşme yapacak ve EGG puanı üretmek için sanal civcivler oluşturacaktır.<br><img src='https://via.placeholder.com/300x200?text=buying' alt='buying'>"],
+            ["🥚EGG Kullanımı", "EGG puanları şu amaçlarla kullanılabilir: daha fazla EGG puanı kazanmak için tavuk kümesi açmak, hayatta kalma mini oyunları, şanslı mağaza, gelecekteki özellikler vb. Platformun ekosistemi tamamlanmıştır ve EGG temel puandır.<br><img src='https://via.placeholder.com/300x200?text=Points' alt='Points'>"],
+            ["♻️EGG Ticareti", "EGG puanları ticaret pazarında satışa çıkarılabilir veya satın alınabilir. Kullanıcılar puanları platform içinde serbestçe dolaştırabilir ve transferler desteklenir.<br><img src='https://via.placeholder.com/300x200?text=trade' alt='trade'>"],
+            ["💎Yumurta Değeri", "Gerçek Hayat Tavuk Yumurtlama Kapasitesi: Bir tavuk, 72 hafta içinde yaklaşık 300 yumurta verebilir<br><img src='https://via.placeholder.com/300x200?text=EGGvalue' alt='value'>"],
+            ["💌Davet Mekanizması", "Komisyon Mekanizması: Platformun tüm işlevlerinde bir komisyon modülü bulunmaktadır<br><img src='https://via.placeholder.com/300x200?text=commission' alt='commission'>"],
+            ["🐔SSS", "❓S1: Bir civciv kaç EGG üretebilir?\n✅C: Her civciv 10 EGG üretir, döngü yaklaşık 60 gündür.\n❓S2: Civcivler transfer edilebilir mi?\n🚫C: Sanal civcivler transfer edilemez.\n❓S3: Puanlar transfer edilebilir mi?\n✅C: Evet, serbestçe transfer edilebilir."]
+        ]
+      },
+      ur: {
+        title: "METAEGG صارف گائیڈ",
+        top: "اوپر واپس جائیں",
+        sections: [
+          ["🐣رجسٹریشن اور لاگ ان", "صارفین METAEGG.GG کی سرکاری ویب سائٹ پر جا سکتے ہیں یا METAEGG ایپ ڈاؤن لوڈ کرنے کے لیے Google Play پر METAEGG تلاش کر سکتے ہیں۔ پلیٹ فارم میں داخل ہونے کے بعد، نیچے 'رجسٹر' بٹن پر کلک کریں، اپنا ای میل اور پاس ورڈ درج کریں، اور رجسٹریشن مکمل کرنے کے لیے اپنے ای میل کی تصدیق کریں۔<br><img src='https://via.placeholder.com/300x200?text=register' alt='رجسٹر'>"],
+          ["➕اکاؤنٹ ریچارج", "لاگ ان کرنے کے بعد 'میرا' > 'ریچارج' پر جائیں\nادائیگی کا طریقہ منتخب کریں (کرپٹو کرنسی اور روایتی کرنسی دستیاب ہے)\nریچارج کی رقم درج کریں، اور ریچارج کا عمل مکمل کریں<br><img src='https://via.placeholder.com/300x200?text=recharge' alt='ریچارج'>"],
+          ["➖رقم نکلوانا", "لاگ ان کرنے کے بعد 'میرا' > 'نکالنا' پر جائیں\nادائیگی کا طریقہ منتخب کریں (کرپٹو کرنسی اور روایتی کرنسی دستیاب ہے)\nنکالنے کی رقم درج کریں، اور نکالنے کا عمل مکمل کریں۔ پلیٹ فارم جائزہ لینے کے بعد اس پر کارروائی کرے گا<br><img src='https://via.placeholder.com/300x200?text=withdraw' alt='نکالنا'>"],
+          ["🐤مرغیاں خریدیں", "میٹاورس فارم کے نقشے پر کلک کریں اور افزائش کے علاقے میں داخل ہونے کے لیے 'باغ' کا انتخاب کریں\nخریدنا چاہتے ہیں مرغیوں کی تعداد منتخب کریں\nتصدیق کرنے کے بعد، نظام ایک حقیقی انڈے دینے والی مرغی کو باندھ دے گا اور EGG پوائنٹس پیدا کرنے کے لیے ورچوئل مرغیاں پیدا کرے گا<br><img src='https://via.placeholder.com/300x200?text=buying' alt='خریدنا'>"],
+          ["🥚EGG کا استعمال", "EGG پوائنٹس کو استعمال کیا جا سکتا ہے: زیادہ EGG پوائنٹس کمانے کے لیے مرغی کے کواڑ کھولنے، بقا کے چھوٹے کھیل، خوش قسمت مال، مستقبل کی خصوصیات وغیرہ۔ پلیٹ فارم کا ماحولیاتی نظام مکمل ہے، اور EGG بنیادی پوائنٹ ہے<br><img src='https://via.placeholder.com/300x200?text=Points' alt='پوائنٹس'>"],
+          ["♻️EGG ٹریڈنگ", "EGG پوائنٹس کو ٹریڈنگ مارکیٹ میں فروخت یا خریداری کے لیے درج کیا جا سکتا ہے۔ صارفین پلیٹ فارم کے اندر پوائنٹس کو آزادانہ طور پر گردش دے سکتے ہیں، اور منتقلی کی حمایت کی جاتی ہے<br><img src='https://via.placeholder.com/300x200?text=trade' alt='ٹریڈ'>"],
+          ["💎انڈے کی قیمت", "حقیقی زندگی میں مرغی کی انڈے دینے کی صلاحیت: ایک مرغی 72 ہفتوں میں تقریباً 300 انڈے دے سکتی ہے<br><img src='https://via.placeholder.com/300x200?text=EGGvalue' alt='قیمت'>"],
+          ["💌دعوت کا نظام", "کمیشن کا نظام: پلیٹ فارم کی تمام فعالیتوں میں ایک کمیشن ماڈیول ہوتا ہے<br><img src='https://via.placeholder.com/300x200?text=commission' alt='کمیشن'>"],
+          ["🐔عمومی سوالات", "❓س1: ایک مرغی کتنے EGG پیدا کر سکتی ہے؟\n✅ج: ہر چوزہ 10 EGG پیدا کرتا ہے، سائیکل تقریباً 60 دن کا ہوتا ہے\n❓س2: کیا مرغیوں کو منتقل کیا جا سکتا ہے؟\n🚫ج: ورچوئل مرغیوں کو منتقل نہیں کیا جا سکتا\n❓س3: کیا پوائنٹس منتقل کیے جا سکتے ہیں؟\n✅ج: ہاں، وہ آزادانہ طور پر منتقل کیے جا سکتے ہیں"]
+        ]
+      },
+      zh: {
+        title: "METAEGG 使用手册",
+        top: "返回顶部",
+        sections: [
+          ["🐣注册与登录", "用户可以通过访问 METAEGG.GG 官网或Google Play搜索METAEGG下载METAEGG APP，进入平台后点击下方“注册”按钮，输入邮箱、密码并验证邮箱后完成注册<br><img src='https://via.placeholder.com/300x200?text=register' alt='register'>"],
+          ["➕账户充值", "登录后进入个人中心“我的”，点击“充值”，选择支付方式（可选择加密货币和法定货币等）后输入充值金额并完成充值操作<br><img src='https://via.placeholder.com/300x200?text=recharge' alt='recharge'>"],
+          ["➖账户提现", "登录后进入个人中心“我的”，点击“提现”，选择收款方式（可选择加密货币和法定货币等）后输入提现金额并完成提现操作，平台会在审核后发放<br><img src='https://via.placeholder.com/300x200?text=withdraw' alt='withdraw'>"],
+          ["🐤购买小鸡", "点击元宇宙地图并选择“鸡园”进入养殖场，选择要购买的小鸡数量，确认后系统会绑定一只真实产蛋鸡并生成虚拟鸡生产EGG积分<br><img src='https://via.placeholder.com/300x200?text=buying' alt='buying'>"],
+          ["🥚EGG使用", "EGG积分可用于：开设鸡舍赚取更多的EGG积分、大逃杀小游戏、幸运商城、未来功能等，平台内部生态完整，EGG是核心积分<br><img src='https://via.placeholder.com/300x200?text=Points' alt='Points'>"],
+          ["♻️积分交易", "EGG积分可以在交易市场中挂牌出售或购买，平台内用户之间可自由流通，并支持转增<br><img src='https://via.placeholder.com/300x200?text=trade' alt='trade'>"],
+          ["💎鸡蛋价值", "现实鸡产蛋能力：一只蛋鸡在 72 周左右可产约300枚鸡蛋<br><img src='https://via.placeholder.com/300x200?text=EGGvalue' alt='value'>"],
+          ["💌邀请机制", "佣金机制： 平台的所有功能都有返佣模块<br><img src='https://via.placeholder.com/300x200?text=commission' alt='commission'>"],
+          ["🐔常见问题", "❓Q1: 一只鸡能产多少EGG？\n✅A: 每只小鸡产10EGG，周期约60天\n❓Q2: 是否可以转让鸡？\n🚫A: 虚拟鸡不能转让\n❓Q3: 积分可以转赠吗？\n✅A: 可以，自由转赠"]
+        ]
+      }
+    };
+
+    function buildContent(lang) {
+      // 设置文档方向
+      const isRTL = ['ar', 'ur'].includes(lang);
+      document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+      document.documentElement.lang = lang;
+      
+      const { title, top, sections } = langData[lang];
+      document.querySelector('[data-i18n="title"]').textContent = title;
+      document.querySelector('[data-i18n="top"]').textContent = top;
+      const sidebar = document.getElementById("sidebar");
+      const cardsContainer = document.getElementById("cards");
+
+      sidebar.innerHTML = "";
+      cardsContainer.innerHTML = "";
+
+      sections.forEach(([title, desc], index) => {
+        const anchor = document.createElement('a');
+        anchor.textContent = title;
+        anchor.onclick = () => scrollToCard(index);
+        sidebar.appendChild(anchor);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => toggleCard(card);
+        card.innerHTML = `<h3>${title}</h3><div class="card-content">${desc
+          .split("\n")
+          .map(p => `<p>${p}</p>`)
+          .join('')}</div>`;
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    function toggleSidebar(event) {
+      event.stopPropagation();
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    document.addEventListener("click", function (e) {
+      const sidebar = document.getElementById("sidebar");
+      const isClickInside = sidebar.contains(e.target) || e.target.classList.contains("menu-toggle") || e.target.classList.contains("lang-select");
+      if (!isClickInside) sidebar.classList.remove("active");
+    });
+
+    function toggleCard(card) {
+      const isActive = card.classList.contains('active');
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+      if (!isActive) card.classList.add('active');
+    }
+
+    function scrollToCard(index) {
+      const card = document.querySelectorAll('.card')[index];
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth' });
+        card.classList.add('active');
+      }
+      document.getElementById("sidebar").classList.remove("active");
+    }
+
+    function changeLanguage() {
+      const lang = document.getElementById("lang-select").value;
+      buildContent(lang);
+    }
+
+    // Initialize default language
+    window.onload = () => {
+      buildContent('en');
+    };
+  </script>
+</body>
+</html>
